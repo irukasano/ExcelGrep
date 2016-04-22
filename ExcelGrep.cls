@@ -11,7 +11,7 @@ Option Explicit
 
 Private MainSheet           As Worksheet
 Private TargetPathCell      As Range
-Private SearchWordCell      As Range
+Private SearchPatternCell   As Range
 Private ResultListFirstCell As Range
 Private ShouldSearch        As Boolean
 Private FSO                 As New FileSystemObject
@@ -29,7 +29,7 @@ End Enum
 Private Sub Class_Initialize()
     Set MainSheet = ThisWorkbook.Sheets("ExcelGrep")
     Set TargetPathCell = MainSheet.Range("C3")
-    Set SearchWordCell = MainSheet.Range("C4")
+    Set SearchPatternCell = MainSheet.Range("C4")
     Set ResultListFirstCell = MainSheet.Range("C7")
     ShouldSearch = False
 End Sub
@@ -52,7 +52,7 @@ Public Sub ExecSearch(Optional IgnoreCase As Boolean = True)
         MsgBox "検索対象フォルダが見つかりませんでした。", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
-    If Trim(SearchWordCell.Value) = "" Then
+    If Trim(SearchPatternCell.Value) = "" Then
         MsgBox "検索文字列を入力してください。", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
@@ -64,7 +64,7 @@ Public Sub ExecSearch(Optional IgnoreCase As Boolean = True)
     
     REG.Global = True
     REG.IgnoreCase = IgnoreCase
-    REG.Pattern = SearchWordCell.Value
+    REG.Pattern = SearchPatternCell.Value
     
     ShouldSearch = True
     Call ClearResultList
