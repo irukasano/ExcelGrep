@@ -49,16 +49,16 @@ End Sub
 Public Sub ExecSearch(Optional IgnoreCase As Boolean = True)
     Dim SpecifiedFolder As Folder: Set SpecifiedFolder = GetSpecifiedFolder()
     If SpecifiedFolder Is Nothing Then
-        MsgBox "ŒŸõ‘ÎÛƒtƒHƒ‹ƒ_‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B", vbInformation, ThisWorkbook.Name
+        MsgBox "æ¤œç´¢å¯¾è±¡ãƒ•ã‚©ãƒ«ãƒ€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     If Trim(SearchPatternCell.Value) = "" Then
-        MsgBox "ŒŸõ•¶š—ñ‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B", vbInformation, ThisWorkbook.Name
+        MsgBox "æ¤œç´¢æ–‡å­—åˆ—ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
     If ShouldSearch = True Then
-        MsgBox "•Ê‚ÌŒŸõˆ—‚ª‚·‚Å‚ÉÀs’†‚Å‚·B", vbInformation, ThisWorkbook.Name
+        MsgBox "åˆ¥ã®æ¤œç´¢å‡¦ç†ãŒã™ã§ã«å®Ÿè¡Œä¸­ã§ã™ã€‚", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
@@ -77,12 +77,12 @@ Public Sub ExecSearch(Optional IgnoreCase As Boolean = True)
     
     ShouldSearch = False
     Call DisplayStatus("")
-    MsgBox "ŒŸõ‚ªI—¹‚µ‚Ü‚µ‚½B", vbInformation, ThisWorkbook.Name
+    MsgBox "æ¤œç´¢ãŒçµ‚äº†ã—ã¾ã—ãŸã€‚", vbInformation, ThisWorkbook.Name
 End Sub
 
 Public Sub Interrupt()
     If ShouldSearch = False Then Exit Sub
-    If MsgBox("ŒŸõ‚ğ’†~‚µ‚Ä‚à‚æ‚ë‚µ‚¢‚Å‚·‚©?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
+    If MsgBox("æ¤œç´¢ã‚’ä¸­æ­¢ã—ã¦ã‚‚ã‚ˆã‚ã—ã„ã§ã™ã‹?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
     
     ShouldSearch = False
 End Sub
@@ -130,7 +130,7 @@ Private Sub SearchBook(objFile As File)
     
     Dim Book As Workbook: Set Book = InvisibleExcel.Workbooks.Open(Filename:=objFile.Path, ReadOnly:=True)
     If Book Is Nothing Then
-        MsgBox objFile.Path & vbCrLf & " ‚ªŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½B"
+        MsgBox objFile.Path & vbCrLf & " ãŒé–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚"
         Exit Sub
     End If
     On Error GoTo 0
@@ -196,21 +196,21 @@ Private Sub SetNewRowData(FoundSheet As Worksheet, Name As String, Value As Stri
     Dim PathCell As Range: Set PathCell = Row.Cells(ResultColumns.Path)
     Dim BookCell As Range: Set BookCell = Row.Cells(ResultColumns.Book)
     
-    'ƒpƒX
+    'ãƒ‘ã‚¹
     PathCell.Value = FoundSheet.Parent.FullName
     PathCell.WrapText = False
     Call MainSheet.Hyperlinks.Add(Anchor:=PathCell, Address:=PathCell.Value)
-    'ƒuƒbƒN
+    'ãƒ–ãƒƒã‚¯
     BookCell.Value = FoundSheet.Parent.Name
     Call MainSheet.Hyperlinks.Add(Anchor:=BookCell, Address:=PathCell.Value)
-    'ƒV[ƒg
+    'ã‚·ãƒ¼ãƒˆ
     Row.Cells(ResultColumns.Sheet).Value = FoundSheet.Name
-    '–¼‘O
+    'åå‰
     Row.Cells(ResultColumns.Name).Value = Name
-    '’l
+    'å€¤
     Row.Cells(ResultColumns.Value).Value = Value
     Row.Cells(ResultColumns.Value).WrapText = False
-    '--- Œrü ---
+    '--- ç½«ç·š ---
     Row.Borders.LineStyle = xlContinuous
 End Sub
 
@@ -229,7 +229,7 @@ Private Sub DisplayStatus(Msg As String)
     Const DotsLen  As Integer = 5
     Dim Dots       As String: Dots = String((Math.Rnd * DotsLen), ".")
     Dim Loading    As String: Loading = Left(Dots & String(DotsLen, " "), DotsLen)
-    Dim strDisplay As String: strDisplay = "ŒŸõ’†" & Loading & " " & Msg
+    Dim strDisplay As String: strDisplay = "æ¤œç´¢ä¸­" & Loading & " " & Msg
     Application.StatusBar = IIf(Msg = "", "", strDisplay)
     DoEvents
 End Sub
