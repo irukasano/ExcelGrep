@@ -3,22 +3,22 @@ Option Explicit
 
 Public EG As New ExcelGrep
 
-Public Sub æ¤œç´¢å¯¾è±¡ãƒ•ã‚©ãƒ«ãƒ€ã®ãƒ‘ã‚¹ã‚’å…¥åŠ›()
-    Call EG.PickupFolderPath("æ¤œç´¢å¯¾è±¡ãƒ•ã‚©ãƒ«ãƒ€ã‚’é¸æŠã—ã¦ãã ã•ã„ã€‚")
+Public Sub ŒŸõ‘ÎÛƒtƒHƒ‹ƒ_‚ÌƒpƒX‚ğ“ü—Í()
+    Call EG.PickupFolderPath("ŒŸõ‘ÎÛƒtƒHƒ‹ƒ_‚ğ‘I‘ğ‚µ‚Ä‚­‚¾‚³‚¢B")
 End Sub
 
-Public Sub æ¤œç´¢å®Ÿè¡Œ()
-    Call EG.ExecSearch(CaseSensitive:=False)
+Public Sub ŒŸõÀs()
+    Call EG.ExecSearch(IgnoreCase:=True)
 End Sub
 
-Public Sub æ¤œç´¢å®Ÿè¡Œ_å¤§æ–‡å­—å°æ–‡å­—ã‚’åŒºåˆ¥()
-    Call EG.ExcecSearch(CaseSensitive:=True)
+Public Sub ŒŸõÀs_‘å•¶š¬•¶š‚ğ‹æ•Ê()
+    Call EG.ExecSearch(IgnoreCase:=False)
 End Sub
 
-Public Sub æ¤œç´¢ä¸­æ­¢()
+Public Sub ŒŸõ’†~()
     Call EG.Interrupt
 End Sub
 
-Public Sub çµæœãƒªã‚¹ãƒˆã‚’ã‚¯ãƒªã‚¢()
+Public Sub Œ‹‰ÊƒŠƒXƒg‚ğƒNƒŠƒA()
     Call EG.ClearResultList
 End Sub
