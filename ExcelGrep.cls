@@ -17,6 +17,8 @@ Private ShouldSearch        As Boolean
 Private FSO                 As New FileSystemObject
 Private REG                 As New VBScript_RegExp_55.RegExp
 Private InvisibleExcel      As Excel.Application
+Private ExpressSearch       As Boolean
+Private TortoiseSVNProc     As String
 
 Private Enum ResultColumns
     Path = 1
@@ -32,6 +34,7 @@ Private Sub Class_Initialize()
     Set SearchPatternCell = MainSheet.Range("C4")
     Set ResultListFirstCell = MainSheet.Range("C7")
     ShouldSearch = False
+    TortoiseSVNProc = MainSheet.Range("B28").Value
 End Sub
 
 Public Sub PickupFolderPath(Msg As String)
@@ -46,25 +49,26 @@ Public Sub PickupFolderPath(Msg As String)
     TargetPathCell.Value = Result
 End Sub
 
-Public Sub ExecSearch(Optional IgnoreCase As Boolean = True)
+Public Sub ExecSearch(Optional IgnoreCase As Boolean = True, Optional Express As Boolean = False)
     Dim SpecifiedFolder As Folder: Set SpecifiedFolder = GetSpecifiedFolder()
     If SpecifiedFolder Is Nothing Then
-        MsgBox "検索対象フォルダが見つかりませんでした。", vbInformation, ThisWorkbook.Name
+        MsgBox "�����Ώۃt�H���_��������܂���ł����B", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     If Trim(SearchPatternCell.Value) = "" Then
-        MsgBox "検索文字列を入力してください。", vbInformation, ThisWorkbook.Name
+        MsgBox "�������������͂��Ă��������B", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
     If ShouldSearch = True Then
-        MsgBox "別の検索処理がすでに実行中です。", vbInformation, ThisWorkbook.Name
+        MsgBox "�ʂ̌������������łɎ��s���ł��B", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
     REG.Global = True
     REG.IgnoreCase = IgnoreCase
     REG.Pattern = SearchPatternCell.Value
+    ExpressSearch = Express
     
     ShouldSearch = True
     Call ClearResultList
@@ -77,12 +81,12 @@ Public Sub ExecSearch(Optional IgnoreCase As Boolean = True)
     
     ShouldSearch = False
     Call DisplayStatus("")
-    MsgBox "検索が終了しました。", vbInformation, ThisWorkbook.Name
+    MsgBox "�������I�����܂����B", vbInformation, ThisWorkbook.Name
 End Sub
 
 Public Sub Interrupt()
     If ShouldSearch = False Then Exit Sub
-    If MsgBox("検索を中止してもよろしいですか?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
+    If MsgBox("�����𒆎~���Ă���낵���ł���?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
     
     ShouldSearch = False
 End Sub
@@ -130,14 +134,18 @@ Private Sub SearchBook(objFile As File)
     
     Dim Book As Workbook: Set Book = InvisibleExcel.Workbooks.Open(Filename:=objFile.Path, ReadOnly:=True)
     If Book Is Nothing Then
-        MsgBox objFile.Path & vbCrLf & " が開けませんでした。"
+        MsgBox objFile.Path & vbCrLf & " ���J���܂���ł����B"
         Exit Sub
     End If
     On Error GoTo 0
     
     Dim Sheet      As Worksheet
     For Each Sheet In Book.Worksheets
-        Call SearchSheet(Sheet)
+        If ExpressSearch = True Then
+            Call SearchSheet2(Sheet)
+        Else
+            Call SearchSheet(Sheet)
+        End If
     Next
     
     Call Book.Close(SaveChanges:=False)
@@ -153,7 +161,7 @@ Private Sub SearchSheet(Sheet As Worksheet)
     Set TargetRange = Sheet.UsedRange.Cells
     For Each Cell In TargetRange
         DoEvents
-        Call DisplayStatus(Sheet.Parent.FullName)
+        Call DisplayStatus(Sheet.Parent.FullName + "(" + Cell.Address + ")")
         
         If Cell.Value <> "" Then
             If REG.Test(Cell.Value) Then
@@ -166,7 +174,7 @@ Private Sub SearchSheet(Sheet As Worksheet)
     Dim objShape As Shape
     For Each objShape In Sheet.Shapes
         DoEvents
-        Call DisplayStatus(Sheet.Parent.FullName)
+        Call DisplayStatus(Sheet.Parent.FullName + "(" + objShape.Name + ")")
         
         If HasTextFrameCharactersText(objShape) Then
             If REG.Test(objShape.TextFrame.Characters.Text) Then
@@ -174,6 +182,33 @@ Private Sub SearchSheet(Sheet As Worksheet)
             End If
         End If
     Next
+End Sub
+
+Private Sub SearchSheet2(Sheet As Worksheet)
+    If ShouldSearch = False Then Exit Sub
+    
+    Dim TargetRange     As Range
+    Dim r               As Range
+    Dim firstAddress    As String
+
+    'Search Cells
+    Set TargetRange = Sheet.UsedRange.Cells
+    Set r = TargetRange.Find(SearchPatternCell.Value)
+    If (Not r Is Nothing) Then
+        firstAddress = r.Address
+        
+        Do
+            DoEvents
+            Call DisplayStatus(Sheet.Parent.FullName + "(" + r.Address + ")")
+            Call ProcessCell(r)
+            
+            r = TargetRange.FindNext
+            If (r Is Nothing) Then
+                Exit Do
+            End If
+        Loop Until r.Address = firstAddress
+    End If
+
 End Sub
 
 Private Function HasTextFrameCharactersText(objShape As Shape) As Boolean
@@ -192,26 +227,26 @@ Private Sub ProcessShape(objShape As Shape)
 End Sub
 
 Private Sub SetNewRowData(FoundSheet As Worksheet, Name As String, Value As String)
-    Dim Row      As Range: Set Row = GetNewRow()
-    Dim PathCell As Range: Set PathCell = Row.Cells(ResultColumns.Path)
-    Dim BookCell As Range: Set BookCell = Row.Cells(ResultColumns.Book)
+    Dim row      As Range: Set row = GetNewRow()
+    Dim PathCell As Range: Set PathCell = row.Cells(ResultColumns.Path)
+    Dim BookCell As Range: Set BookCell = row.Cells(ResultColumns.Book)
     
-    'パス
+    '�p�X
     PathCell.Value = FoundSheet.Parent.FullName
     PathCell.WrapText = False
     Call MainSheet.Hyperlinks.Add(Anchor:=PathCell, Address:=PathCell.Value)
-    'ブック
+    '�u�b�N
     BookCell.Value = FoundSheet.Parent.Name
     Call MainSheet.Hyperlinks.Add(Anchor:=BookCell, Address:=PathCell.Value)
-    'シート
-    Row.Cells(ResultColumns.Sheet).Value = FoundSheet.Name
-    '名前
-    Row.Cells(ResultColumns.Name).Value = Name
-    '値
-    Row.Cells(ResultColumns.Value).Value = Value
-    Row.Cells(ResultColumns.Value).WrapText = False
-    '--- 罫線 ---
-    Row.Borders.LineStyle = xlContinuous
+    '�V�[�g
+    row.Cells(ResultColumns.Sheet).Value = FoundSheet.Name
+    '���O
+    row.Cells(ResultColumns.Name).Value = Name
+    '�l
+    row.Cells(ResultColumns.Value).Value = Value
+    row.Cells(ResultColumns.Value).WrapText = False
+    '--- �r�� ---
+    row.Borders.LineStyle = xlContinuous
 End Sub
 
 Private Function GetNewRow() As Range
@@ -229,7 +264,7 @@ Private Sub DisplayStatus(Msg As String)
     Const DotsLen  As Integer = 5
     Dim Dots       As String: Dots = String((Math.Rnd * DotsLen), ".")
     Dim Loading    As String: Loading = Left(Dots & String(DotsLen, " "), DotsLen)
-    Dim strDisplay As String: strDisplay = "検索中" & Loading & " " & Msg
+    Dim strDisplay As String: strDisplay = "������" & Loading & " " & Msg
     Application.StatusBar = IIf(Msg = "", "", strDisplay)
     DoEvents
 End Sub
@@ -259,4 +294,37 @@ Public Sub FollowHyperlink(Target As Hyperlink)
     Else
         DistSheet.Shapes(ObjectName).Select
     End If
+End Sub
+
+Public Sub LockResultList()
+    Dim i           As Long
+    Dim r           As Range
+    Dim ListRange   As Range: Set ListRange = GetResultListRange
+    Dim cmd         As String
+    Dim prevPath    As String
+    
+    If ListRange.Rows.Count = 1 Then
+        Call MsgBox("���ʃ��X�g������܂���̂ŏ������܂���", vbExclamation)
+    End If
+    
+    prevPath = vbNullString
+    
+    For i = 2 To ListRange.Rows.Count
+        Set r = ListRange.Rows(i)
+        Dim PathCell As Range: Set PathCell = r.Cells(ResultColumns.Path)
+
+        If (prevPath <> PathCell.Value) Then
+    
+            cmd = Chr(34) & TortoiseSVNProc & Chr(34) & " " & _
+                "/command:lock" & " " & _
+                "/path:" & Chr(34) & PathCell.Value & Chr(34) & " " & _
+                "/closeonend:0"
+            
+            Shell cmd
+        
+        End If
+        
+        prevPath = PathCell.Value
+    Next
+
 End Sub
