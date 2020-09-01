@@ -52,16 +52,16 @@ End Sub
 Public Sub ExecSearch(Optional IgnoreCase As Boolean = True, Optional Express As Boolean = False)
     Dim SpecifiedFolder As Folder: Set SpecifiedFolder = GetSpecifiedFolder()
     If SpecifiedFolder Is Nothing Then
-        MsgBox "�����Ώۃt�H���_��������܂���ł����B", vbInformation, ThisWorkbook.Name
+        MsgBox "検索対象フォルダが見つかりませんでした。", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     If Trim(SearchPatternCell.Value) = "" Then
-        MsgBox "�������������͂��Ă��������B", vbInformation, ThisWorkbook.Name
+        MsgBox "検索文字列を入力してください。", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
     If ShouldSearch = True Then
-        MsgBox "�ʂ̌������������łɎ��s���ł��B", vbInformation, ThisWorkbook.Name
+        MsgBox "別の検索処理がすでに実行中です。", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
@@ -81,12 +81,12 @@ Public Sub ExecSearch(Optional IgnoreCase As Boolean = True, Optional Express As
     
     ShouldSearch = False
     Call DisplayStatus("")
-    MsgBox "�������I�����܂����B", vbInformation, ThisWorkbook.Name
+    MsgBox "検索が終了しました。", vbInformation, ThisWorkbook.Name
 End Sub
 
 Public Sub Interrupt()
     If ShouldSearch = False Then Exit Sub
-    If MsgBox("�����𒆎~���Ă���낵���ł���?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
+    If MsgBox("検索を中止してもよろしいですか?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
     
     ShouldSearch = False
 End Sub
@@ -134,7 +134,7 @@ Private Sub SearchBook(objFile As File)
     
     Dim Book As Workbook: Set Book = InvisibleExcel.Workbooks.Open(Filename:=objFile.Path, ReadOnly:=True)
     If Book Is Nothing Then
-        MsgBox objFile.Path & vbCrLf & " ���J���܂���ł����B"
+        MsgBox objFile.Path & vbCrLf & " が開けませんでした。"
         Exit Sub
     End If
     On Error GoTo 0
@@ -231,21 +231,21 @@ Private Sub SetNewRowData(FoundSheet As Worksheet, Name As String, Value As Stri
     Dim PathCell As Range: Set PathCell = row.Cells(ResultColumns.Path)
     Dim BookCell As Range: Set BookCell = row.Cells(ResultColumns.Book)
     
-    '�p�X
+    'パス
     PathCell.Value = FoundSheet.Parent.FullName
     PathCell.WrapText = False
     Call MainSheet.Hyperlinks.Add(Anchor:=PathCell, Address:=PathCell.Value)
-    '�u�b�N
+    'ブック
     BookCell.Value = FoundSheet.Parent.Name
     Call MainSheet.Hyperlinks.Add(Anchor:=BookCell, Address:=PathCell.Value)
-    '�V�[�g
+    'シート
     row.Cells(ResultColumns.Sheet).Value = FoundSheet.Name
-    '���O
+    '名前
     row.Cells(ResultColumns.Name).Value = Name
-    '�l
+    '値
     row.Cells(ResultColumns.Value).Value = Value
     row.Cells(ResultColumns.Value).WrapText = False
-    '--- �r�� ---
+    '--- 罫線 ---
     row.Borders.LineStyle = xlContinuous
 End Sub
 
@@ -264,7 +264,7 @@ Private Sub DisplayStatus(Msg As String)
     Const DotsLen  As Integer = 5
     Dim Dots       As String: Dots = String((Math.Rnd * DotsLen), ".")
     Dim Loading    As String: Loading = Left(Dots & String(DotsLen, " "), DotsLen)
-    Dim strDisplay As String: strDisplay = "������" & Loading & " " & Msg
+    Dim strDisplay As String: strDisplay = "検索中" & Loading & " " & Msg
     Application.StatusBar = IIf(Msg = "", "", strDisplay)
     DoEvents
 End Sub
@@ -304,7 +304,7 @@ Public Sub LockResultList()
     Dim prevPath    As String
     
     If ListRange.Rows.Count = 1 Then
-        Call MsgBox("���ʃ��X�g������܂���̂ŏ������܂���", vbExclamation)
+        Call MsgBox("結果リストがありませんので処理しません", vbExclamation)
     End If
     
     prevPath = vbNullString
