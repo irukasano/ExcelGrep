@@ -21,7 +21,7 @@ Private ExpressSearch       As Boolean
 Private TortoiseSVNProc     As String
 
 Private Enum ResultColumns
-    Path = 1
+    path = 1
     Book = 2
     Sheet = 3
     Name = 4
@@ -34,7 +34,7 @@ Private Sub Class_Initialize()
     Set SearchPatternCell = MainSheet.Range("C4")
     Set ResultListFirstCell = MainSheet.Range("C7")
     ShouldSearch = False
-    TortoiseSVNProc = MainSheet.Range("B28").Value
+    TortoiseSVNProc = MainSheet.Range("C2").Value
 End Sub
 
 Public Sub PickupFolderPath(Msg As String)
@@ -52,16 +52,16 @@ End Sub
 Public Sub ExecSearch(Optional IgnoreCase As Boolean = True, Optional Express As Boolean = False)
     Dim SpecifiedFolder As Folder: Set SpecifiedFolder = GetSpecifiedFolder()
     If SpecifiedFolder Is Nothing Then
-        MsgBox "æ¤œç´¢å¯¾è±¡ãƒ•ã‚©ãƒ«ãƒ€ãŒè¦‹ã¤ã‹ã‚Šã¾ã›ã‚“ã§ã—ãŸã€‚", vbInformation, ThisWorkbook.Name
+        MsgBox "ŒŸõ‘ÎÛƒtƒHƒ‹ƒ_‚ªŒ©‚Â‚©‚è‚Ü‚¹‚ñ‚Å‚µ‚½B", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     If Trim(SearchPatternCell.Value) = "" Then
-        MsgBox "æ¤œç´¢æ–‡å­—åˆ—ã‚’å…¥åŠ›ã—ã¦ãã ã•ã„ã€‚", vbInformation, ThisWorkbook.Name
+        MsgBox "ŒŸõ•¶š—ñ‚ğ“ü—Í‚µ‚Ä‚­‚¾‚³‚¢B", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
     If ShouldSearch = True Then
-        MsgBox "åˆ¥ã®æ¤œç´¢å‡¦ç†ãŒã™ã§ã«å®Ÿè¡Œä¸­ã§ã™ã€‚", vbInformation, ThisWorkbook.Name
+        MsgBox "•Ê‚ÌŒŸõˆ—‚ª‚·‚Å‚ÉÀs’†‚Å‚·B", vbInformation, ThisWorkbook.Name
         Exit Sub
     End If
     
@@ -81,12 +81,12 @@ Public Sub ExecSearch(Optional IgnoreCase As Boolean = True, Optional Express As
     
     ShouldSearch = False
     Call DisplayStatus("")
-    MsgBox "æ¤œç´¢ãŒçµ‚äº†ã—ã¾ã—ãŸã€‚", vbInformation, ThisWorkbook.Name
+    MsgBox "ŒŸõ‚ªI—¹‚µ‚Ü‚µ‚½B", vbInformation, ThisWorkbook.Name
 End Sub
 
 Public Sub Interrupt()
     If ShouldSearch = False Then Exit Sub
-    If MsgBox("æ¤œç´¢ã‚’ä¸­æ­¢ã—ã¦ã‚‚ã‚ˆã‚ã—ã„ã§ã™ã‹?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
+    If MsgBox("ŒŸõ‚ğ’†~‚µ‚Ä‚à‚æ‚ë‚µ‚¢‚Å‚·‚©?", vbYesNo Or vbQuestion, ThisWorkbook.Name) <> vbYes Then Exit Sub
     
     ShouldSearch = False
 End Sub
@@ -108,10 +108,10 @@ Private Sub SearchFolder(objFolder As Folder)
     Dim objFile   As File
     Dim SubFolder As Folder
     
-    Call DisplayStatus(objFolder.Path)
+    Call DisplayStatus(objFolder.path)
     
     For Each objFile In objFolder.Files
-        Select Case FSO.GetExtensionName(objFile.Path)
+        Select Case FSO.GetExtensionName(objFile.path)
             Case "xls", "xlsx", "xlsm"
                 Call SearchBook(objFile)
         End Select
@@ -132,9 +132,9 @@ Private Sub SearchBook(objFile As File)
         InvisibleExcel.ScreenUpdating = False
     End If
     
-    Dim Book As Workbook: Set Book = InvisibleExcel.Workbooks.Open(Filename:=objFile.Path, ReadOnly:=True)
+    Dim Book As Workbook: Set Book = InvisibleExcel.Workbooks.Open(Filename:=objFile.path, ReadOnly:=True)
     If Book Is Nothing Then
-        MsgBox objFile.Path & vbCrLf & " ãŒé–‹ã‘ã¾ã›ã‚“ã§ã—ãŸã€‚"
+        MsgBox objFile.path & vbCrLf & " ‚ªŠJ‚¯‚Ü‚¹‚ñ‚Å‚µ‚½B"
         Exit Sub
     End If
     On Error GoTo 0
@@ -202,7 +202,7 @@ Private Sub SearchSheet2(Sheet As Worksheet)
             Call DisplayStatus(Sheet.Parent.FullName + "(" + r.Address + ")")
             Call ProcessCell(r)
             
-            r = TargetRange.FindNext
+            r = TargetRange.FindNext(r)
             If (r Is Nothing) Then
                 Exit Do
             End If
@@ -228,24 +228,24 @@ End Sub
 
 Private Sub SetNewRowData(FoundSheet As Worksheet, Name As String, Value As String)
     Dim row      As Range: Set row = GetNewRow()
-    Dim PathCell As Range: Set PathCell = row.Cells(ResultColumns.Path)
+    Dim PathCell As Range: Set PathCell = row.Cells(ResultColumns.path)
     Dim BookCell As Range: Set BookCell = row.Cells(ResultColumns.Book)
     
-    'ãƒ‘ã‚¹
+    'ƒpƒX
     PathCell.Value = FoundSheet.Parent.FullName
     PathCell.WrapText = False
     Call MainSheet.Hyperlinks.Add(Anchor:=PathCell, Address:=PathCell.Value)
-    'ãƒ–ãƒƒã‚¯
+    'ƒuƒbƒN
     BookCell.Value = FoundSheet.Parent.Name
     Call MainSheet.Hyperlinks.Add(Anchor:=BookCell, Address:=PathCell.Value)
-    'ã‚·ãƒ¼ãƒˆ
+    'ƒV[ƒg
     row.Cells(ResultColumns.Sheet).Value = FoundSheet.Name
-    'åå‰
+    '–¼‘O
     row.Cells(ResultColumns.Name).Value = Name
-    'å€¤
+    '’l
     row.Cells(ResultColumns.Value).Value = Value
     row.Cells(ResultColumns.Value).WrapText = False
-    '--- ç½«ç·š ---
+    '--- Œrü ---
     row.Borders.LineStyle = xlContinuous
 End Sub
 
@@ -264,21 +264,21 @@ Private Sub DisplayStatus(Msg As String)
     Const DotsLen  As Integer = 5
     Dim Dots       As String: Dots = String((Math.Rnd * DotsLen), ".")
     Dim Loading    As String: Loading = Left(Dots & String(DotsLen, " "), DotsLen)
-    Dim strDisplay As String: strDisplay = "æ¤œç´¢ä¸­" & Loading & " " & Msg
+    Dim strDisplay As String: strDisplay = "ŒŸõ’†" & Loading & " " & Msg
     Application.StatusBar = IIf(Msg = "", "", strDisplay)
     DoEvents
 End Sub
 
-Private Function IsIncludedInListRange(Target As Range) As Boolean
+Private Function IsIncludedInListRange(target As Range) As Boolean
     Dim ResultRange As Range
-    Set ResultRange = Application.Intersect(GetResultListRange, Target)
+    Set ResultRange = Application.Intersect(GetResultListRange, target)
     IsIncludedInListRange = Not ResultRange Is Nothing
 End Function
 
-Public Sub FollowHyperlink(Target As Hyperlink)
-    If Not IsIncludedInListRange(Target.Range) Then Exit Sub
+Public Sub FollowHyperlink(target As Hyperlink)
+    If Not IsIncludedInListRange(target.Range) Then Exit Sub
     
-    Dim SourceCell  As Range:     Set SourceCell = Target.Range
+    Dim SourceCell  As Range:     Set SourceCell = target.Range
     Dim SourceSheet As Worksheet: Set SourceSheet = SourceCell.Parent
     Dim SourceRow   As Range:     Set SourceRow = SourceSheet.Range(SourceCell.End(xlToRight).End(xlToLeft), SourceCell.End(xlToRight))
     Dim SheetName   As String:        SheetName = SourceRow.Cells(ResultColumns.Sheet)
@@ -302,29 +302,38 @@ Public Sub LockResultList()
     Dim ListRange   As Range: Set ListRange = GetResultListRange
     Dim cmd         As String
     Dim prevPath    As String
+    Dim path()      As String
+    Dim c           As Long
     
     If ListRange.Rows.Count = 1 Then
-        Call MsgBox("çµæœãƒªã‚¹ãƒˆãŒã‚ã‚Šã¾ã›ã‚“ã®ã§å‡¦ç†ã—ã¾ã›ã‚“", vbExclamation)
+        Call MsgBox("Œ‹‰ÊƒŠƒXƒg‚ª‚ ‚è‚Ü‚¹‚ñ‚Ì‚Åˆ—‚µ‚Ü‚¹‚ñ", vbExclamation)
     End If
     
     prevPath = vbNullString
     
     For i = 2 To ListRange.Rows.Count
         Set r = ListRange.Rows(i)
-        Dim PathCell As Range: Set PathCell = r.Cells(ResultColumns.Path)
+        Dim PathCell As Range: Set PathCell = r.Cells(ResultColumns.path)
 
         If (prevPath <> PathCell.Value) Then
-    
-            cmd = Chr(34) & TortoiseSVNProc & Chr(34) & " " & _
-                "/command:lock" & " " & _
-                "/path:" & Chr(34) & PathCell.Value & Chr(34) & " " & _
-                "/closeonend:0"
-            
-            Shell cmd
+            If Not Not path Then
+                c = UBound(path) + 1
+            Else
+                c = 0
+            End If
+            ReDim Preserve path(0 To c)
         
+            path(c) = PathCell.Value
         End If
         
         prevPath = PathCell.Value
     Next
+
+    cmd = Chr(34) & TortoiseSVNProc & Chr(34) & " " & _
+        "/command:lock" & " " & _
+        "/path:" & Chr(34) & Join(path, "*") & Chr(34) & " " & _
+        "/closeonend:1"
+    
+    Shell cmd
 
 End Sub
