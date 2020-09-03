@@ -11,11 +11,14 @@ https://gist.github.com/TatsuoWatanabe/2ed13d04d9dd686e9b23206c88a7e1a4
 
 ## 画面イメージ
 
-https://github.com/irukasano/ExcelGrep/blob/master/Image.png?raw=true
+![画面イメージ](https://github.com/irukasano/ExcelGrep/blob/master/Image.png?raw=true)
 
 ## 使い方
 
-1. ExcelGrep.xlsm を開く
-2. 「検索対象フォルダ」ボタンで対象フォルダを指定する
-3. 「検索文字列」に検索対象の文字列を入力する
-4. 「検索実行」を押す
+1. 以下から Zip をダウンロードし、解凍する
+    https://github.com/irukasano/ExcelGrep/archive/master.zip
+
+2. ExcelGrep.xlsm を開く
+3. 「検索対象フォルダ」ボタンで対象フォルダを指定する
+4. 「検索文字列」に検索対象の文字列を入力する
+5. 「検索実行」を押す

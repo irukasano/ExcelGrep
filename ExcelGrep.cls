@@ -297,18 +297,39 @@ Public Sub FollowHyperlink(target As Hyperlink)
 End Sub
 
 Public Sub LockResultList()
+    Dim path()      As String
+    Dim cmd         As String
+    
+    path = GetResultFilePaths()
+
+    If UBound(path) = 0 Then
+        Call MsgBox("結果リストがありませんので処理しません", vbExclamation)
+        Exit Sub
+    End If
+    
+
+    cmd = Chr(34) & TortoiseSVNProc & Chr(34) & " " & _
+        "/command:lock" & " " & _
+        "/path:" & Chr(34) & Join(path, "*") & Chr(34) & " " & _
+        "/closeonend:1"
+    
+    Call Shell(cmd, vbNormalFocus)
+
+End Sub
+
+Private Function GetResultFilePaths() As String()
     Dim i           As Long
     Dim r           As Range
     Dim ListRange   As Range: Set ListRange = GetResultListRange
-    Dim cmd         As String
     Dim prevPath    As String
     Dim path()      As String
     Dim c           As Long
-    
+
     If ListRange.Rows.Count = 1 Then
-        Call MsgBox("結果リストがありませんので処理しません", vbExclamation)
+        GetResultFilePaths = path
+        Exit Function
     End If
-    
+
     prevPath = vbNullString
     
     For i = 2 To ListRange.Rows.Count
@@ -329,11 +350,26 @@ Public Sub LockResultList()
         prevPath = PathCell.Value
     Next
 
+    GetResultFilePaths = path()
+End Function
+
+Public Sub CommitResultList()
+
+    Dim path()      As String
+    Dim cmd         As String
+    
+    path = GetResultFilePaths()
+
+    If UBound(path) = 0 Then
+        Call MsgBox("結果リストがありませんので処理しません", vbExclamation)
+        Exit Sub
+    End If
+
     cmd = Chr(34) & TortoiseSVNProc & Chr(34) & " " & _
-        "/command:lock" & " " & _
+        "/command:commit" & " " & _
         "/path:" & Chr(34) & Join(path, "*") & Chr(34) & " " & _
         "/closeonend:1"
     
-    Shell cmd
+    Call Shell(cmd, vbNormalFocus)
 
 End Sub

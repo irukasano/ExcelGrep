@@ -9,6 +9,6 @@ Attribute VB_PredeclaredId = True
 Attribute VB_Exposed = True
 Option Explicit
 
-Private Sub Worksheet_FollowHyperlink(ByVal Target As Hyperlink)
-    Call EG.FollowHyperlink(Target)
+Private Sub Worksheet_FollowHyperlink(ByVal target As Hyperlink)
+    Call EG.FollowHyperlink(target)
 End Sub
